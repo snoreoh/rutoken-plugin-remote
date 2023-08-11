@@ -848,7 +848,7 @@ function cryptoPlugin(pluginObject, noAutoRefresh) {
     this.errorDescription[this.errorCodes.HTTP_ERROR] = "HTTP ответ с ошибкой";
     this.errorDescription[this.errorCodes.TST_VERIFICATION_ERROR] = "Ошибка проверки timestamp токена";
     this.errorDescription[this.errorCodes.UNKNOWN_OBJECT_NAME] = "Неизвестное имя объекта";
-
+    
     if (this.autoRefresh) this.enumerateDevices();
 }
 
@@ -868,7 +868,7 @@ cryptoPlugin.prototype = {
 
     enumerateDevices: function (update) {
         if (update) {
-            var options = {"mode": this.ENUMERATE_DEVICES_EVENTS};
+            var options = 'ENUMERATE_DEVICES_EVENTS';
 
             this.pluginObject.enumerateDevices(options).then($.proxy(function (devices) {
                 for (key in devices) {
@@ -922,7 +922,7 @@ cryptoPlugin.prototype = {
         } else {
             ui.clearDeviceList("Список устройств обновляется...");
 
-            var options = {"mode": this.ENUMERATE_DEVICES_LIST};
+            var options = 'ENUMERATE_DEVICES_LIST';
 
             this.pluginObject.enumerateDevices(options).then($.proxy(function (devices) {
                 if (Object.keys(devices).length == 0) {
@@ -980,22 +980,22 @@ cryptoPlugin.prototype = {
         var device = (deviceId === undefined) ? ui.device() : deviceId;
         try {
             var certs = [];
-            this.pluginObject.enumerateCertificates(device, this.CERT_CATEGORY_USER).then($.proxy(function (certificates) {
+            this.pluginObject.enumerateCertificates(device, 'CERT_CATEGORY_USER').then($.proxy(function (certificates) {
                 ui.clearCertificateList();
                 for (var c in certificates)
                     certs.push({certificate: certificates[c], category: this.CERT_CATEGORY_USER});
 
-                return this.pluginObject.enumerateCertificates(device, this.CERT_CATEGORY_CA);
+                return this.pluginObject.enumerateCertificates(device, 'CERT_CATEGORY_CA');
             }, this)).then($.proxy(function (certificates) {
                 for (var c in certificates)
                     certs.push({certificate: certificates[c], category: this.CERT_CATEGORY_CA});
 
-                return this.pluginObject.enumerateCertificates(device, this.CERT_CATEGORY_OTHER);
+                return this.pluginObject.enumerateCertificates(device, 'CERT_CATEGORY_OTHER');
             }, this)).then($.proxy(function (certificates) {
                 for (var c in certificates)
                     certs.push({certificate: certificates[c], category: this.CERT_CATEGORY_OTHER});
 
-                return this.pluginObject.enumerateCertificates(device, this.CERT_CATEGORY_UNSPEC);
+                return this.pluginObject.enumerateCertificates(device, 'CERT_CATEGORY_UNSPEC');
             }, this)).then($.proxy(function (certificates) {
                 for (var c in certificates)
                     certs.push({certificate: certificates[c], category: this.CERT_CATEGORY_UNSPEC});
@@ -1004,6 +1004,7 @@ cryptoPlugin.prototype = {
                 for (var c in certs) {
                     parsedCerts.push(this.pluginObject.parseCertificate(device, certs[c].certificate).then(function (handle, category) {
                         return function (parsedCert) {
+                            console.log(parsedCert)
                             ui.addCertificate(handle, parsedCert, category);
                         };
                     }(certs[c].certificate, certs[c].category), $.proxy(ui.printError, ui)));
@@ -1996,13 +1997,9 @@ function onPluginLoaded(pluginObject) {
     try {
         var noAutoRefresh = (document.location.search.indexOf("noauto") !== -1);
 
-        plugin = new cryptoPlugin(pluginObject, noAutoRefresh);
+        plugin = new cryptoPlugin(new CryptoPlugin([], true, '1.0.1'), noAutoRefresh);
         ui.registerEvents();
 
-        window.setInterval(function() {
-            if (document.visibilityState == "visible") {
-                plugin.enumerateDevices(true);
-            }}, 500);
     } catch (error) {
         ui.writeln(error);
     }
@@ -2015,6 +2012,7 @@ function initUi() {
 
 function getErrorCode(error) {
     let errorCode = 0;
+    var isNmPlugin = true;
     if (isNmPlugin)
         errorCode = parseInt(error.message);
     else
@@ -2044,40 +2042,6 @@ var isChrome = !!window.chrome;
 var isFirefox = !!window.navigator.userAgent.match(/firefox/i) && !window.navigator.userAgent.match(/seamonkey/i);
 
 window.onload = function () {
-    rutoken.ready.then(function () {
-        initUi();
-        var performCheck = true;
-        if (isFirefox && getFFMajor() < 53) { // Don't check on ESR and older ones
-            performCheck = false;
-        }
-
-        isNmPlugin = true;
-        if (performCheck && (isChrome || isFirefox)) {
-            return rutoken.isExtensionInstalled();
-        } else {
-            isNmPlugin = false;
-            return Promise.resolve(true);
-        }
-    }).then(function (result) {
-        if (result) {
-            return rutoken.isPluginInstalled();
-        } else {
-            var msg = "Расширение \"Адаптер Рутокен Плагин\" не установлено";
-            if (isFirefox && getFFMajor() >= 74)
-                msg += "<br><br>Для <strong>FireFox 74 и новее</strong> установите расширение из " +
-                       "<a href='https://addons.mozilla.org/ru/firefox/addon/adapter-rutoken-plugin/'>официального магазина расширений Mozilla</a>."
-
-            throw msg;
-        }
-    }).then(function (result) {
-        if (result) {
-            return rutoken.loadPlugin();
-        } else {
-            throw "Рутокен Плагин не установлен";
-        }
-    }).then(function (plugin) {
-        onPluginLoaded(plugin);
-    }).then(undefined, function (reason) {
-        showError(reason);
-    });
+    initUi();
+    onPluginLoaded();
 }

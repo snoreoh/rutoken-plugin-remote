@@ -34,10 +34,15 @@ function deps () {
 };
 
 function module () {
-    return gulp.src(['./node_modules/@aktivco/rutoken-plugin/rutoken-plugin.min.js'])
-        .pipe(rename('rutoken-plugin.js'))
+    return gulp.src(['./node_modules/rutoken-plugin-remote/plugin.js'])
+        .pipe(rename('rutoken-plugin-remote.js'))
         .pipe(gulp.dest('build/'));
 };
+
+function server(){
+    return gulp.src(['./node_modules/rutoken-plugin-remote/server/*'])
+        .pipe(gulp.dest('build/server/'));
+}
 
 function scripts () {
     return gulp.src(['src/present.js', 'src/asn1Utils.js'])
@@ -54,5 +59,5 @@ function images () {
         .pipe(gulp.dest('build/images'));
 };
 
-buildScripts = gulp.series(libs, deps, module, scripts)
+buildScripts = gulp.series(libs, deps, module, scripts, server)
 exports.default = gulp.series(clean, gulp.parallel(pages, buildScripts, styles, images));
