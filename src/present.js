@@ -1993,7 +1993,7 @@ var TestSuite = new(function () {
     })();
 })();
 
-function onPluginLoaded(pluginObject) {
+function onPluginLoaded() {
     try {
         var noAutoRefresh = (document.location.search.indexOf("noauto") !== -1);
 
@@ -2012,11 +2012,7 @@ function initUi() {
 
 function getErrorCode(error) {
     let errorCode = 0;
-    var isNmPlugin = true;
-    if (isNmPlugin)
-        errorCode = parseInt(error.message);
-    else
-        errorCode = error;
+    errorCode = parseInt(error.message);
     return errorCode;
 }
 
