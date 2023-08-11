@@ -1004,7 +1004,6 @@ cryptoPlugin.prototype = {
                 for (var c in certs) {
                     parsedCerts.push(this.pluginObject.parseCertificate(device, certs[c].certificate).then(function (handle, category) {
                         return function (parsedCert) {
-                            console.log(parsedCert)
                             ui.addCertificate(handle, parsedCert, category);
                         };
                     }(certs[c].certificate, certs[c].category), $.proxy(ui.printError, ui)));
