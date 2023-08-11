@@ -8,7 +8,7 @@
 
 ```sh
 npm clean-install
-pip install -r requirements.txt.
+pip install -r requirements.txt
 npm run gulp
 ```
 ## Запуск
