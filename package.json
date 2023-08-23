@@ -13,7 +13,7 @@
   "dependencies": {
     "console-polyfill": "^0.3.0",
     "es6-promise": "^4.2.8",
-    "rutoken-plugin-remote": "^1.0.6",
+    "rutoken-plugin-remote": "^1.0.7",
     "asn1js": "^2.1.1",
     "pkijs": "^2.2.1"
   },
