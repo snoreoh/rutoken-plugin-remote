@@ -222,17 +222,18 @@ testUi.prototype = {
 
     addCertificate: function (handle, certificate, category) {
         var description = "";
+        console.log(category)
         switch (category) {
-        case plugin.CERT_CATEGORY_USER:
+        case 'CERT_CATEGORY_USER':
             description = "Пользовательский| ";
             break;
-        case plugin.CERT_CATEGORY_CA:
+        case 'CERT_CATEGORY_CA':
             description = "Корневой| ";
             break;
-        case plugin.CERT_CATEGORY_OTHER:
+        case 'CERT_CATEGORY_OTHER':
             description = "Другой| ";
             break;
-        case plugin.CERT_CATEGORY_UNSPEC:
+        case 'CERT_CATEGORY_UNSPEC':
             description = "Не задана| ";
             break;
         }
@@ -868,7 +869,7 @@ cryptoPlugin.prototype = {
 
     enumerateDevices: function (update) {
         if (update) {
-            var options = 'ENUMERATE_DEVICES_EVENTS';
+            var options = {"mode" : 'ENUMERATE_DEVICES_EVENTS'};
 
             this.pluginObject.enumerateDevices(options).then($.proxy(function (devices) {
                 for (key in devices) {
@@ -922,7 +923,7 @@ cryptoPlugin.prototype = {
         } else {
             ui.clearDeviceList("Список устройств обновляется...");
 
-            var options = 'ENUMERATE_DEVICES_LIST';
+            var options = {"mode" : 'ENUMERATE_DEVICES_LIST'};
 
             this.pluginObject.enumerateDevices(options).then($.proxy(function (devices) {
                 if (Object.keys(devices).length == 0) {
@@ -983,22 +984,22 @@ cryptoPlugin.prototype = {
             this.pluginObject.enumerateCertificates(device, 'CERT_CATEGORY_USER').then($.proxy(function (certificates) {
                 ui.clearCertificateList();
                 for (var c in certificates)
-                    certs.push({certificate: certificates[c], category: this.CERT_CATEGORY_USER});
+                    certs.push({certificate: certificates[c], category: 'CERT_CATEGORY_USER'});
 
                 return this.pluginObject.enumerateCertificates(device, 'CERT_CATEGORY_CA');
             }, this)).then($.proxy(function (certificates) {
                 for (var c in certificates)
-                    certs.push({certificate: certificates[c], category: this.CERT_CATEGORY_CA});
+                    certs.push({certificate: certificates[c], category: 'CERT_CATEGORY_CA'});
 
                 return this.pluginObject.enumerateCertificates(device, 'CERT_CATEGORY_OTHER');
             }, this)).then($.proxy(function (certificates) {
                 for (var c in certificates)
-                    certs.push({certificate: certificates[c], category: this.CERT_CATEGORY_OTHER});
+                    certs.push({certificate: certificates[c], category: 'CERT_CATEGORY_OTHER'});
 
                 return this.pluginObject.enumerateCertificates(device, 'CERT_CATEGORY_UNSPEC');
             }, this)).then($.proxy(function (certificates) {
                 for (var c in certificates)
-                    certs.push({certificate: certificates[c], category: this.CERT_CATEGORY_UNSPEC});
+                    certs.push({certificate: certificates[c], category: 'CERT_CATEGORY_UNSPEC'});
 
                 var parsedCerts = [];
                 for (var c in certs) {
